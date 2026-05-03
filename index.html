@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Mailino"/>
+  <meta name="theme-color" content="#0a0f1f" media="(prefers-color-scheme: dark)"/>
+  <meta name="theme-color" content="#f0f4ff" media="(prefers-color-scheme: light)"/>
+  <title>Mailino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── DARK MODE (default) ── */
+    :root {
+      --bg: #07101f;
+      --surface: #0b1628;
+      --card: #0f1e35;
+      --card2: #162540;
+      --border: #1c2e4a;
+      --border2: #243858;
+      --accent: #4a90e8;
+      --accent2: #6aaaf0;
+      --accent-dim: rgba(74,144,232,0.13);
+      --blue: #4a90e8;
+      --blue-dim: rgba(74,144,232,0.13);
+      --red: #e05a5a;
+      --red-dim: rgba(224,90,90,0.12);
+      --green: #5ae0a0;
+      --text: #e8f0ff;
+      --text2: #8ba5cc;
+      --muted: #3d5577;
+      --safe-top: env(safe-area-inset-top, 44px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+      color-scheme: dark;
+    }
+
+```
+/* ── LIGHT MODE ── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f0f4ff;
+    --surface: #e4ecfa;
+    --card: #ffffff;
+    --card2: #eaf0fb;
+    --border: #d0dcf0;
+    --border2: #b8cae8;
+    --accent: #2c6fd4;
+    --accent2: #4a90e8;
+    --accent-dim: rgba(44,111,212,0.10);
+    --blue: #2c6fd4;
+    --blue-dim: rgba(44,111,212,0.10);
+    --red: #d43c3c;
+    --red-dim: rgba(212,60,60,0.10);
+    --green: #1a9e6a;
+    --text: #0a1428;
+    --text2: #3a5080;
+    --muted: #7a96be;
+    color-scheme: light;
+  }
+
+  body { background: var(--bg); }
+  .bottom-nav { background: rgba(240,244,255,0.95); }
+  .page-header { background: rgba(240,244,255,0.92); }
+  #loading-overlay { background: rgba(240,244,255,0.94); }
+  .setup-input { background: var(--card2); }
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; }
+body {
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ── MAILINO LOGO ── */
+.setup-logo {
+  font-family:'Syne',sans-serif; font-size:38px; font-weight:800;
+  color:var(--text); text-align:center; letter-spacing:-1px;
+}
+.logo-m {
+  background: linear-gradient(160deg, #6ab4f8 0%, #2c6fd4 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.logo-m-sm {
+  background: linear-gradient(160deg, #6ab4f8 0%, #2c6fd4 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family:'Syne',sans-serif; font-weight:800;
+}
+
+/* ── APP SHELL ── */
+#app { height:100dvh; display:flex; flex-direction:column; overflow:hidden; position:relative; }
+
+/* ── SCREENS ── */
+.screen {
+  display:none; flex-direction:column;
+  flex:1; overflow:hidden;
+  animation: fadeUp 0.3s ease;
+}
+.screen.active { display:flex; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── SCROLLABLE CONTENT ── */
+.scroll-area {
+  flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding-bottom:16px;
+}
+.scroll-area::-webkit-scrollbar { display:none; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  display:flex; justify-content:space-around; align-items:center;
+  padding: 10px 8px calc(10px + var(--safe-bottom));
+  background:rgba(13,13,20,0.95);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+.nav-btn {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  background:none; border:none; cursor:pointer;
+  padding:6px 16px; border-radius:12px;
+  transition: all 0.2s;
+}
+.nav-btn .icon { font-size:20px; opacity:0.4; transition:0.2s; }
+.nav-btn .label { font-size:10px; color:var(--muted); letter-spacing:0.5px; transition:0.2s; }
+.nav-btn.active .icon { opacity:1; }
+.nav-btn.active .label { color:var(--accent); }
+.nav-dot { width:4px; height:4px; border-radius:50%; background:var(--accent); margin-top:-2px; opacity:0; }
+.nav-btn.active .nav-dot { opacity:1; }
+
+/* ── HEADER ── */
+.page-header {
+  padding: calc(var(--safe-top) + 8px) 20px 14px;
+  flex-shrink:0;
+  background:rgba(10,10,15,0.9);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.header-row { display:flex; align-items:center; gap:10px; }
+.back-btn {
+  width:36px; height:36px; border-radius:12px;
+  background:var(--card); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; color:var(--text); cursor:pointer;
+  flex-shrink:0;
+}
+
+/* ── TYPOGRAPHY ── */
+.page-title {
+  font-family:'Syne',sans-serif;
+  font-size:26px; font-weight:800;
+  letter-spacing:-0.5px; color:var(--text);
+}
+.page-subtitle { font-size:12px; color:var(--muted); margin-top:2px; }
+
+/* ── PRIORITY TAGS ── */
+.tag {
+  font-size:10px; font-weight:600; padding:3px 9px;
+  border-radius:20px; text-transform:uppercase; letter-spacing:0.5px; flex-shrink:0;
+}
+.tag-urgent { background:var(--red-dim); color:var(--red); }
+.tag-medium { background:var(--accent-dim); color:var(--accent); }
+.tag-low    { background:var(--blue-dim); color:var(--blue); }
+.tag-done   { background:rgba(90,224,160,0.1); color:var(--green); }
+
+/* ── CARDS ── */
+.card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:16px;
+}
+.card-label {
+  font-size:10px; color:var(--muted);
+  letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  border:none; cursor:pointer; font-family:'DM Sans',sans-serif;
+  font-weight:500; border-radius:14px; transition:all 0.15s;
+}
+.btn:active { transform:scale(0.97); }
+.btn-primary { background:var(--accent); color:#0a0a0f; font-weight:700; }
+.btn-secondary { background:var(--card2); color:var(--text); border:1px solid var(--border2); }
+.btn-ghost { background:transparent; color:var(--muted); }
+
+/* ════════════════════════════════
+   SCREEN: SETUP
+════════════════════════════════ */
+#screen-setup {
+  justify-content:center; align-items:center;
+  padding:40px 28px;
+  gap:24px;
+}
+.setup-tagline { font-size:14px; color:var(--muted); text-align:center; line-height:1.6; }
+.setup-card { width:100%; }
+.setup-card .card-label { font-size:11px; }
+.input-wrap { position:relative; }
+.setup-input {
+  width:100%; padding:14px 16px; border-radius:14px;
+  background:var(--card2); border:1px solid var(--border2);
+  color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px;
+  outline:none;
+}
+.setup-input:focus { border-color:var(--accent); }
+.setup-input::placeholder { color:var(--muted); }
+.setup-btn {
+  width:100%; padding:16px;
+  font-size:15px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.setup-hint { font-size:11px; color:var(--muted); text-align:center; line-height:1.5; }
+.setup-hint a { color:var(--accent); text-decoration:none; }
+
+/* ════════════════════════════════
+   SCREEN: DASHBOARD
+════════════════════════════════ */
+#screen-dashboard .page-header { border-bottom:none; }
+.dash-greeting { font-size:12px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
+.dash-title { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:var(--text); }
+.dash-title span { color:var(--accent); }
+.btn-primary { background: linear-gradient(135deg, #4a90e8 0%, #2c6fd4 100%); color:#fff; font-weight:700; box-shadow: 0 4px 16px rgba(44,111,212,0.35); }
+.dash-date { font-size:12px; color:var(--muted); margin-top:3px; }
+
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:0 20px 20px; }
+.stat-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:14px 10px; text-align:center;
+}
+.stat-num { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; }
+.stat-num.r { color:var(--red); }
+.stat-num.a { color:var(--accent); }
+.stat-num.b { color:var(--blue); }
+.stat-lbl { font-size:10px; color:var(--muted); margin-top:2px; letter-spacing:0.5px; text-transform:uppercase; }
+
+.section-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px 10px;
+}
+.section-title { font-size:11px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; }
+.section-link { font-size:12px; color:var(--accent); }
+
+.task-list { padding:0 20px; display:flex; flex-direction:column; gap:8px; }
+.task-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:13px 14px;
+  display:flex; align-items:center; gap:11px;
+  cursor:pointer; transition:border-color 0.2s;
+}
+.task-row:active { border-color:var(--border2); }
+.task-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.dot-r { background:var(--red); box-shadow:0 0 6px var(--red); }
+.dot-a { background:var(--accent); box-shadow:0 0 6px var(--accent); }
+.dot-b { background:var(--blue); box-shadow:0 0 6px var(--blue); }
+.task-info { flex:1; min-width:0; }
+.task-from { font-size:12px; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.task-subj { font-size:11px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.scan-btn-wrap { padding:20px; }
+.scan-btn {
+  width:100%; padding:18px;
+  font-size:15px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  border-radius:18px;
+}
+.scanning-indicator {
+  display:none; align-items:center; justify-content:center; gap:10px;
+  padding:16px 20px; color:var(--accent); font-size:13px;
+}
+.scanning-indicator.active { display:flex; }
+.spin { animation:spin 1s linear infinite; font-size:18px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.empty-state {
+  text-align:center; padding:40px 20px;
+  color:var(--muted); font-size:13px; line-height:1.7;
+}
+.empty-icon { font-size:32px; margin-bottom:10px; }
+
+/* ════════════════════════════════
+   SCREEN: EMAIL LIST
+════════════════════════════════ */
+.filter-row {
+  display:flex; gap:8px; padding:12px 20px 14px;
+  overflow-x:auto; flex-shrink:0;
+}
+.filter-row::-webkit-scrollbar { display:none; }
+.chip {
+  padding:6px 14px; border-radius:20px; font-size:11px; font-weight:500;
+  white-space:nowrap; border:1px solid var(--border); color:var(--muted);
+  background:var(--card); cursor:pointer; transition:all 0.2s; flex-shrink:0;
+}
+.chip.active { background:var(--accent); color:#0a0a0f; border-color:var(--accent); font-weight:700; }
+
+.email-list { padding:0 20px; display:flex; flex-direction:column; gap:10px; }
+.email-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:16px;
+  position:relative; overflow:hidden;
+  cursor:pointer; transition:border-color 0.2s;
+}
+.email-card:active { border-color:var(--border2); }
+.email-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+}
+.email-card.urgent::before { background:var(--red); }
+.email-card.medium::before { background:var(--accent); }
+.email-card.low::before    { background:var(--blue); }
+.email-card.done { opacity:0.4; }
+
+.email-top { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.avatar {
+  width:34px; height:34px; border-radius:11px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; color:#0a0a0f; flex-shrink:0;
+}
+.av-r { background:var(--red); }
+.av-a { background:var(--accent); }
+.av-b { background:var(--blue); }
+.av-g { background:var(--green); }
+.email-meta { flex:1; min-width:0; }
+.email-from { font-size:13px; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.email-time { font-size:11px; color:var(--muted); margin-top:1px; }
+.email-subject { font-size:13px; font-weight:600; color:var(--text2); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.email-preview { font-size:12px; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+.action-row { display:flex; gap:8px; margin-top:12px; }
+.action-btn {
+  flex:1; padding:10px 6px; border-radius:11px;
+  font-size:11px; font-weight:600; text-align:center;
+  cursor:pointer; transition:all 0.15s; border:none;
+  font-family:'DM Sans',sans-serif;
+}
+.action-btn:active { transform:scale(0.96); }
+.ab-send  { background: linear-gradient(135deg, #4a90e8, #2c6fd4); color:#fff; }
+.ab-edit  { background:var(--card2); color:var(--text); border:1px solid var(--border2); }
+.ab-ignore { background:transparent; color:var(--muted); border:1px solid var(--border); }
+
+/* ════════════════════════════════
+   SCREEN: EMAIL DETAIL
+════════════════════════════════ */
+.detail-header-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+.detail-subject {
+  font-family:'Syne',sans-serif; font-size:19px; font-weight:700;
+  color:var(--text); margin-top:4px; line-height:1.3;
+}
+
+.deadline-banner {
+  margin:0 20px 14px;
+  display:flex; align-items:center; gap:10px;
+  background:rgba(224,90,90,0.08); border:1px solid rgba(224,90,90,0.2);
+  border-radius:14px; padding:12px 14px;
+}
+.deadline-banner.hidden { display:none; }
+.dl-icon { font-size:16px; }
+.dl-text { font-size:12px; color:var(--red); font-weight:500; }
+
+.detail-section { padding:0 20px 14px; }
+.summary-text { font-size:13px; color:var(--text2); line-height:1.7; }
+
+.draft-card {
+  margin:0 20px 14px;
+  background:var(--card); border:1px solid rgba(74,144,232,0.25);
+  border-radius:18px; padding:18px;
+}
+.draft-label {
+  font-size:10px; color:var(--accent);
+  letter-spacing:1.5px; text-transform:uppercase;
+  margin-bottom:12px; display:flex; align-items:center; gap:8px;
+}
+.ai-badge {
+  background:var(--accent-dim); color:var(--accent);
+  padding:2px 8px; border-radius:20px; font-size:10px; font-weight:600;
+}
+.df-send { flex:1.5; padding:15px; font-size:14px; font-weight:700; background: linear-gradient(135deg, #4a90e8, #2c6fd4); color:#fff; border-radius:14px; border:none; }
+.draft-textarea {
+  width:100%; background:transparent; border:none; outline:none;
+  color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px;
+  line-height:1.8; resize:none; min-height:160px;
+}
+
+.detail-footer {
+  padding:14px 20px calc(14px + var(--safe-bottom));
+  display:flex; gap:10px; flex-shrink:0;
+  background:var(--bg); border-top:1px solid var(--border);
+}
+.df-edit { flex:1; padding:15px; font-size:13px; }
+.df-ignore { flex:0.7; padding:15px; font-size:12px; }
+
+/* ════════════════════════════════
+   SCREEN: TASKS
+════════════════════════════════ */
+.reminder-list { padding:0 20px; display:flex; flex-direction:column; gap:10px; }
+.reminder-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:14px 16px;
+  display:flex; align-items:center; gap:12px;
+}
+.rem-check {
+  width:22px; height:22px; border-radius:8px;
+  border:2px solid var(--border2); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all 0.2s;
+}
+.rem-check.checked { background:var(--accent); border-color:var(--accent); }
+.rem-text { flex:1; font-size:13px; color:var(--text); }
+.rem-text.done { text-decoration:line-through; color:var(--muted); }
+.rem-time { font-size:11px; color:var(--muted); flex-shrink:0; }
+
+.add-task-row {
+  padding:16px 20px 0;
+  display:flex; gap:10px;
+}
+.add-task-input {
+  flex:1; padding:13px 16px; border-radius:14px;
+  background:var(--card); border:1px solid var(--border2);
+  color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px;
+  outline:none;
+}
+.add-task-input:focus { border-color:var(--accent); }
+.add-task-input::placeholder { color:var(--muted); }
+.add-task-btn {
+  width:46px; height:46px; border-radius:14px;
+  font-size:22px; display:flex; align-items:center; justify-content:center;
+}
+
+/* ════════════════════════════════
+   SETTINGS SCREEN
+════════════════════════════════ */
+.settings-list { padding:0 20px; display:flex; flex-direction:column; gap:10px; }
+.setting-row {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:16px;
+  display:flex; align-items:center; gap:12px;
+}
+.setting-icon { font-size:20px; width:36px; text-align:center; }
+.setting-info { flex:1; }
+.setting-label { font-size:13px; font-weight:500; color:var(--text); }
+.setting-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.setting-action { font-size:12px; color:var(--accent); cursor:pointer; flex-shrink:0; }
+
+.key-display {
+  font-family:monospace; font-size:11px; color:var(--muted);
+  background:var(--card2); padding:4px 10px; border-radius:8px;
+}
+
+/* ── TOAST ── */
+#toast {
+  position:fixed; bottom:calc(90px + var(--safe-bottom)); left:50%; transform:translateX(-50%) translateY(20px);
+  background:#1a1a28; border:1px solid var(--border2); border-radius:14px;
+  padding:10px 20px; font-size:13px; color:var(--text);
+  opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; z-index:999;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── LOADING OVERLAY ── */
+#loading-overlay {
+  display:none; position:fixed; inset:0; background:rgba(10,10,15,0.9);
+  backdrop-filter:blur(10px); z-index:100;
+  flex-direction:column; align-items:center; justify-content:center; gap:16px;
+}
+#loading-overlay.active { display:flex; }
+.loading-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:700; color:var(--text); }
+.loading-sub { font-size:13px; color:var(--muted); }
+.loading-bar-wrap { width:200px; height:3px; background:var(--border); border-radius:3px; overflow:hidden; }
+.loading-bar { height:100%; background:var(--accent); border-radius:3px; width:0%; transition:width 0.4s ease; }
+```
+
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── SETUP SCREEN ── -->
+
+  <div id="screen-setup" class="screen active">
+    <div class="setup-logo"><span class="logo-m">M</span>ailino</div>
+    <div class="setup-tagline">Your AI email assistant.<br/>Reads, prioritizes & drafts replies for you.</div>
+    <div class="setup-card card">
+      <div class="card-label">🔑 Anthropic API Key</div>
+      <div class="input-wrap">
+        <input class="setup-input" id="api-key-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off"/>
+      </div>
+    </div>
+    <button class="btn btn-primary scan-btn setup-btn" onclick="saveAndStart()">
+      <span>Get Started</span> <span>→</span>
+    </button>
+    <div class="setup-hint">
+      Get your free API key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br/>
+      Your key is stored locally on this device only.
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD SCREEN ── -->
+
+  <div id="screen-dashboard" class="screen">
+    <div class="page-header">
+      <div class="dash-greeting">Good morning</div>
+      <div class="dash-title"><span class="logo-m-sm">M</span> Your <span>Inbox</span></div>
+      <div class="dash-date" id="dash-date"></div>
+    </div>
+    <div class="scroll-area">
+      <div style="height:16px"></div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num r" id="stat-urgent">—</div><div class="stat-lbl">Urgent</div></div>
+        <div class="stat-card"><div class="stat-num a" id="stat-total">—</div><div class="stat-lbl">Emails</div></div>
+        <div class="stat-card"><div class="stat-num b" id="stat-drafts">—</div><div class="stat-lbl">Drafts</div></div>
+      </div>
+
+```
+  <div id="scan-btn-wrap" class="scan-btn-wrap">
+    <button class="btn btn-primary scan-btn" onclick="startScan()">
+      ✦ Scan Full 2026 Inbox
+    </button>
+  </div>
+  <div class="scanning-indicator" id="scanning-ind">
+    <span class="spin">⟳</span> <span id="scan-status-text">Connecting to Outlook…</span>
+  </div>
+
+  <div id="dash-tasks-wrap" style="display:none">
+    <div class="section-head">
+      <div class="section-title">Priority Actions</div>
+      <div class="section-link" onclick="goToEmails()">See all →</div>
+    </div>
+    <div class="task-list" id="dash-task-list"></div>
+  </div>
+
+  <div id="dash-empty" class="empty-state">
+    <div class="empty-icon">📭</div>
+    <div>Tap <strong style="color:var(--accent)">Scan Full 2026 Inbox</strong> to analyse<br/>your entire backlog with AI.</div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ── EMAIL LIST SCREEN ── -->
+
+  <div id="screen-emails" class="screen">
+    <div class="page-header">
+      <div class="header-row">
+        <div class="back-btn" onclick="goTo('dashboard')">←</div>
+        <div>
+          <div class="page-title">Emails</div>
+        </div>
+        <div style="margin-left:auto; font-size:12px; color:var(--muted); background:var(--card); padding:4px 10px; border-radius:20px; border:1px solid var(--border)" id="email-count-badge">0 emails</div>
+      </div>
+    </div>
+    <div class="filter-row" id="filter-row">
+      <div class="chip active" data-filter="all" onclick="setFilter(this,'all')">All</div>
+      <div class="chip" data-filter="urgent" onclick="setFilter(this,'urgent')">🔴 Urgent</div>
+      <div class="chip" data-filter="medium" onclick="setFilter(this,'medium')">🟡 Medium</div>
+      <div class="chip" data-filter="low" onclick="setFilter(this,'low')">🔵 Low</div>
+      <div class="chip" data-filter="done" onclick="setFilter(this,'done')">✅ Done</div>
+    </div>
+    <div class="scroll-area">
+      <div class="email-list" id="email-list"></div>
+      <div id="email-empty" class="empty-state" style="display:none">
+        <div class="empty-icon">✅</div>
+        <div>No emails in this category.</div>
+      </div>
+      <div style="height:8px"></div>
+    </div>
+  </div>
+
+  <!-- ── EMAIL DETAIL SCREEN ── -->
+
+  <div id="screen-detail" class="screen">
+    <div class="page-header">
+      <div class="header-row">
+        <div class="back-btn" onclick="goTo('emails')">←</div>
+        <div style="flex:1; min-width:0">
+          <div class="detail-header-sub" id="detail-from"></div>
+          <div class="detail-subject" id="detail-subject"></div>
+        </div>
+        <div id="detail-tag" class="tag" style="flex-shrink:0"></div>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="deadline-banner hidden" id="deadline-banner">
+        <span class="dl-icon">🗓</span>
+        <span class="dl-text" id="deadline-text"></span>
+      </div>
+      <div class="detail-section">
+        <div class="card">
+          <div class="card-label">✦ AI Summary</div>
+          <div class="summary-text" id="detail-summary">Loading…</div>
+        </div>
+      </div>
+      <div class="draft-card">
+        <div class="draft-label">✦ AI Draft Reply <span class="ai-badge">Ready to send</span></div>
+        <textarea class="draft-textarea" id="draft-textarea" placeholder="Generating draft…"></textarea>
+      </div>
+      <div style="height:8px"></div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn btn-primary df-send action-btn" onclick="sendEmail()">⚡ Send Now</button>
+      <button class="btn btn-secondary df-edit action-btn" onclick="focusDraft()">✏️ Edit</button>
+      <button class="btn btn-ghost df-ignore action-btn" onclick="ignoreEmail()">Ignore</button>
+    </div>
+  </div>
+
+  <!-- ── TASKS SCREEN ── -->
+
+  <div id="screen-tasks" class="screen">
+    <div class="page-header">
+      <div class="page-title">Tasks</div>
+      <div class="page-subtitle">Reminders & to-dos</div>
+    </div>
+    <div class="scroll-area">
+      <div class="add-task-row">
+        <input class="add-task-input" id="new-task-input" placeholder="Add a task…" onkeydown="if(event.key==='Enter')addTask()"/>
+        <button class="btn btn-primary add-task-btn" onclick="addTask()">+</button>
+      </div>
+      <div style="height:14px"></div>
+      <div class="reminder-list" id="reminder-list"></div>
+      <div id="tasks-empty" class="empty-state" style="display:none">
+        <div class="empty-icon">☑️</div>
+        <div>No tasks yet. Add one above.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS SCREEN ── -->
+
+  <div id="screen-settings" class="screen">
+    <div class="page-header">
+      <div class="page-title">Settings</div>
+    </div>
+    <div class="scroll-area">
+      <div style="height:16px"></div>
+      <div class="settings-list">
+        <div class="setting-row">
+          <div class="setting-icon">🔑</div>
+          <div class="setting-info">
+            <div class="setting-label">API Key</div>
+            <div class="setting-sub"><span id="key-display" class="key-display">Not set</span></div>
+          </div>
+          <div class="setting-action" onclick="changeKey()">Change</div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-icon">📬</div>
+          <div class="setting-info">
+            <div class="setting-label">Email Account</div>
+            <div class="setting-sub">Microsoft 365 (Outlook)</div>
+          </div>
+          <div class="setting-action" style="color:var(--green)">✓ Connected</div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-icon">🧹</div>
+          <div class="setting-info">
+            <div class="setting-label">Clear All Data</div>
+            <div class="setting-sub">Reset scanned emails & tasks</div>
+          </div>
+          <div class="setting-action" style="color:var(--red)" onclick="clearData()">Clear</div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-icon">📱</div>
+          <div class="setting-info">
+            <div class="setting-label">Add to Home Screen</div>
+            <div class="setting-sub">Safari → Share → Add to Home Screen</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:24px; text-align:center; padding-top:24px;">
+        <div style="font-size:11px; color:var(--muted)">Mailino v1.1 · Powered by Claude AI</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM NAV ── -->
+
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="nav-btn active" id="nav-dashboard" onclick="goTo('dashboard')">
+      <div class="icon">⊞</div>
+      <div class="nav-dot"></div>
+      <div class="label">Dashboard</div>
+    </button>
+    <button class="nav-btn" id="nav-emails" onclick="goTo('emails')">
+      <div class="icon">✉</div>
+      <div class="nav-dot"></div>
+      <div class="label">Emails</div>
+    </button>
+    <button class="nav-btn" id="nav-tasks" onclick="goTo('tasks')">
+      <div class="icon">☑</div>
+      <div class="nav-dot"></div>
+      <div class="label">Tasks</div>
+    </button>
+    <button class="nav-btn" id="nav-settings" onclick="goTo('settings')">
+      <div class="icon">⚙</div>
+      <div class="nav-dot"></div>
+      <div class="label">Settings</div>
+    </button>
+  </nav>
+
+  <!-- ── LOADING OVERLAY ── -->
+
+  <div id="loading-overlay">
+    <div class="spin" style="font-size:32px; color:var(--accent)">⟳</div>
+    <div class="loading-title" id="loading-title">Scanning Emails…</div>
+    <div class="loading-sub" id="loading-sub">Fetching 2026 inbox…</div>
+    <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let apiKey = localStorage.getItem('mt_apikey') || '';
+let emails = JSON.parse(localStorage.getItem('mt_emails') || '[]');
+let tasks  = JSON.parse(localStorage.getItem('mt_tasks')  || '[]');
+let currentEmail = null;
+let currentFilter = 'all';
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+window.onload = () => {
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  if (apiKey) {
+    document.getElementById('screen-setup').classList.remove('active');
+    goTo('dashboard');
+    refreshDashboard();
+    renderTasks();
+    updateKeyDisplay();
+  }
+};
+
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-setup').style.display = 'none';
+  document.getElementById('bottom-nav').style.display = 'flex';
+
+  document.getElementById(`screen-${screen}`).classList.add('active');
+  const navBtn = document.getElementById(`nav-${screen}`);
+  if (navBtn) navBtn.classList.add('active');
+
+  if (screen === 'emails') renderEmailList();
+}
+
+function goToEmails() { goTo('emails'); }
+
+function saveAndStart() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key.startsWith('sk-ant')) { showToast('⚠️ Please enter a valid API key'); return; }
+  apiKey = key;
+  localStorage.setItem('mt_apikey', key);
+  updateKeyDisplay();
+  document.getElementById('screen-setup').classList.remove('active');
+  goTo('dashboard');
+  refreshDashboard();
+}
+
+// ══════════════════════════════════════
+// MICROSOFT 365 — FETCH ALL 2026 EMAILS
+// Batches by month, analyses in chunks of 20
+// ══════════════════════════════════════
+const MONTHS_2026 = [
+  { name:'January',  start:'2026-01-01T00:00:00Z', end:'2026-01-31T23:59:59Z' },
+  { name:'February', start:'2026-02-01T00:00:00Z', end:'2026-02-28T23:59:59Z' },
+  { name:'March',    start:'2026-03-01T00:00:00Z', end:'2026-03-31T23:59:59Z' },
+  { name:'April',    start:'2026-04-01T00:00:00Z', end:'2026-04-30T23:59:59Z' },
+  { name:'May',      start:'2026-05-01T00:00:00Z', end:'2026-05-31T23:59:59Z' },
+];
+
+async function callClaude(system, userMsg, useMCP = false) {
+  const body = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 4000,
+    system,
+    messages: [{ role: 'user', content: userMsg }],
+  };
+  if (useMCP) body.mcp_servers = [{ type: 'url', url: 'https://microsoft365.mcp.claude.com/mcp', name: 'microsoft365' }];
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-api-key': apiKey,
+    'anthropic-version': '2023-06-01',
+  };
+  if (useMCP) headers['anthropic-beta'] = 'mcp-client-2025-04-04';
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', { method:'POST', headers, body: JSON.stringify(body) });
+  return resp.json();
+}
+
+function extractJSON(data) {
+  for (const block of data.content || []) {
+    if (block.type === 'mcp_tool_result') {
+      try { return JSON.parse(block.content?.[0]?.text || 'null'); } catch {}
+    }
+    if (block.type === 'text') {
+      const text = block.text.trim().replace(/^```json\n?/,'').replace(/\n?```$/,'');
+      try { return JSON.parse(text); } catch {}
+      const m = text.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+      if (m) { try { return JSON.parse(m[1]); } catch {} }
+    }
+  }
+  return null;
+}
+
+async function startScan() {
+  if (!apiKey) { showToast('⚠️ Add your API key in Settings'); return; }
+
+  document.getElementById('scan-btn-wrap').style.display = 'none';
+  document.getElementById('scanning-ind').classList.add('active');
+  document.getElementById('dash-empty').style.display = 'none';
+  showLoading('Connecting to Outlook…', 'Starting 2026 backlog scan', 5);
+
+  try {
+    let allRaw = [];
+
+    // ── STEP 1: Fetch per month ──
+    const monthsToFetch = MONTHS_2026.filter(m => new Date(m.start) <= new Date());
+    for (let i = 0; i < monthsToFetch.length; i++) {
+      const m = monthsToFetch[i];
+      const pct = 5 + Math.round((i / monthsToFetch.length) * 40);
+      updateLoadingText(`Fetching ${m.name}…`, `Month ${i+1} of ${monthsToFetch.length}`, pct);
+
+      const data = await callClaude(
+        `You are an email fetcher. Use Microsoft 365 MCP to fetch ALL emails (read and unread) from the Outlook inbox received between ${m.start} and ${m.end}.
+Return ONLY a raw JSON array (no markdown). Each item:
+{ "id": string, "from": string, "subject": string, "body": first 400 chars, "receivedAt": ISO string, "hasDeadline": boolean, "deadlineText": string|null }`,
+        `Fetch all emails from my Outlook inbox between ${m.start} and ${m.end}.`,
+        true
+      );
+
+      const result = extractJSON(data);
+      if (Array.isArray(result)) allRaw.push(...result.map(e => ({ ...e, month: m.name })));
+    }
+
+    if (!allRaw.length) {
+      hideLoading();
+      document.getElementById('scanning-ind').classList.remove('active');
+      document.getElementById('scan-btn-wrap').style.display = 'block';
+      showToast('📭 No 2026 emails found or connection failed');
+      return;
+    }
+
+    // ── STEP 2: Analyse in chunks of 20 ──
+    const CHUNK = 20;
+    let analysed = [];
+    const chunks = [];
+    for (let i = 0; i < allRaw.length; i += CHUNK) chunks.push(allRaw.slice(i, i + CHUNK));
+
+    for (let i = 0; i < chunks.length; i++) {
+      const pct = 50 + Math.round((i / chunks.length) * 45);
+      updateLoadingText('Analysing with AI…', `Batch ${i+1} of ${chunks.length} · ${analysed.length + chunks[i].length}/${allRaw.length} emails`, pct);
+
+      const data = await callClaude(
+        `You are an email analyst. For each email return ALL original fields plus:
+- priority: "urgent" (action needed today/overdue) | "medium" (action needed this week) | "low" (FYI, newsletter, no reply needed)
+- summary: 1-2 sentence plain English summary of what is needed
+- draftReply: professional ready-to-send reply. Only write a reply if a reply makes sense. If no reply needed write "". End replies with "Best regards,\\n[Your name]"
+- status: "pending"
+- month: keep original month field
+
+Return ONLY a raw JSON array, no markdown.`,
+        `Analyse these emails:\n${JSON.stringify(chunks[i])}`
+      );
+
+      const result = extractJSON(data);
+      if (Array.isArray(result)) analysed.push(...result);
+      else analysed.push(...chunks[i].map(e => ({ ...e, priority:'medium', summary:'Could not analyse.', draftReply:'', status:'pending' })));
+    }
+
+    updateLoadingText('Done!', `${analysed.length} emails processed`, 100);
+    emails = analysed;
+    localStorage.setItem('mt_emails', JSON.stringify(emails));
+
+    setTimeout(() => {
+      hideLoading();
+      document.getElementById('scanning-ind').classList.remove('active');
+      document.getElementById('scan-btn-wrap').style.display = 'block';
+      refreshDashboard();
+      showToast(`✦ ${emails.length} emails from 2026 analysed`);
+    }, 600);
+
+  } catch (err) {
+    hideLoading();
+    document.getElementById('scanning-ind').classList.remove('active');
+    document.getElementById('scan-btn-wrap').style.display = 'block';
+    showToast('⚠️ ' + err.message);
+  }
+}
+
+// ══════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════
+function refreshDashboard() {
+  const urgent = emails.filter(e => e.priority === 'urgent' && e.status !== 'done').length;
+  const drafts = emails.filter(e => e.draftReply && e.status !== 'done').length;
+  document.getElementById('stat-urgent').textContent = urgent || '0';
+  document.getElementById('stat-total').textContent  = emails.length || '0';
+  document.getElementById('stat-drafts').textContent = drafts || '0';
+
+  const taskList = document.getElementById('dash-task-list');
+  taskList.innerHTML = '';
+
+  const topEmails = [...emails].filter(e => e.status !== 'done')
+    .sort((a,b) => { const o={urgent:0,medium:1,low:2}; return o[a.priority]-o[b.priority]; })
+    .slice(0,5);
+
+  if (topEmails.length) {
+    document.getElementById('dash-tasks-wrap').style.display = 'block';
+    document.getElementById('dash-empty').style.display = 'none';
+    topEmails.forEach(e => {
+      const dot = e.priority==='urgent'?'dot-r':e.priority==='medium'?'dot-a':'dot-b';
+      const tag = e.priority==='urgent'?'Urgent':e.priority==='medium'?'Today':'This week';
+      const tagCls = e.priority==='urgent'?'tag-urgent':e.priority==='medium'?'tag-medium':'tag-low';
+      const row = document.createElement('div');
+      row.className = 'task-row';
+      row.innerHTML = `<div class="task-dot ${dot}"></div><div class="task-info"><div class="task-from">${esc(e.from)}</div><div class="task-subj">${esc(e.subject)}</div></div><div class="tag ${tagCls}">${tag}</div>`;
+      row.onclick = () => openDetail(e);
+      taskList.appendChild(row);
+    });
+  } else {
+    document.getElementById('dash-tasks-wrap').style.display = 'none';
+    document.getElementById('dash-empty').style.display = 'block';
+  }
+}
+
+// ══════════════════════════════════════
+// EMAIL LIST — grouped by month, then priority
+// ══════════════════════════════════════
+const PRIORITY_ORDER = { urgent:0, medium:1, low:2 };
+const MONTH_ORDER = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function renderEmailList() {
+  const list = document.getElementById('email-list');
+  list.innerHTML = '';
+
+  let filtered = currentFilter === 'all'  ? emails
+    : currentFilter === 'done'            ? emails.filter(e => e.status === 'done')
+    : emails.filter(e => e.priority === currentFilter && e.status !== 'done');
+
+  document.getElementById('email-count-badge').textContent = `${filtered.length} email${filtered.length!==1?'s':''}`;
+
+  if (!filtered.length) { document.getElementById('email-empty').style.display='block'; return; }
+  document.getElementById('email-empty').style.display = 'none';
+
+  // Group by month
+  const byMonth = {};
+  filtered.forEach(e => {
+    const mon = e.month || monthFromDate(e.receivedAt);
+    if (!byMonth[mon]) byMonth[mon] = [];
+    byMonth[mon].push(e);
+  });
+
+  // Sort months chronologically
+  const sortedMonths = Object.keys(byMonth).sort((a,b) => MONTH_ORDER.indexOf(b) - MONTH_ORDER.indexOf(a)); // newest first
+
+  sortedMonths.forEach(month => {
+    // Month header
+    const header = document.createElement('div');
+    header.style.cssText = 'padding:14px 4px 8px; display:flex; align-items:center; gap:10px;';
+    const pending = byMonth[month].filter(e=>e.status!=='done').length;
+    header.innerHTML = `
+      <span style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;color:var(--text)">${month}</span>
+      <span style="font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:2px 9px;border-radius:20px">${byMonth[month].length} emails</span>
+      ${pending ? `<span style="font-size:11px;color:var(--accent);background:var(--accent-dim);padding:2px 9px;border-radius:20px;border:1px solid rgba(201,168,76,0.2)">${pending} pending</span>` : '<span style="font-size:11px;color:var(--green)">✓ All done</span>'}
+    `;
+    list.appendChild(header);
+
+    // Priority sub-groups within month
+    const priorities = ['urgent','medium','low'];
+    priorities.forEach(pri => {
+      const group = byMonth[month].filter(e => e.priority === pri);
+      if (!group.length) return;
+
+      // Priority divider
+      const divider = document.createElement('div');
+      divider.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;margin-top:4px;';
+      const dotColor = pri==='urgent'?'var(--red)':pri==='medium'?'var(--accent)':'var(--blue)';
+      const priLabel = pri==='urgent'?'Urgent':pri==='medium'?'Medium':'Low Priority';
+      divider.innerHTML = `<div style="width:6px;height:6px;border-radius:50%;background:${dotColor};box-shadow:0 0 5px ${dotColor}"></div><span style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">${priLabel} · ${group.length}</span><div style="flex:1;height:1px;background:var(--border)"></div>`;
+      list.appendChild(divider);
+
+      group.forEach(e => {
+        const avCls = pri==='urgent'?'av-r':pri==='medium'?'av-a':'av-b';
+        const tagCls = e.status==='done'?'tag-done':pri==='urgent'?'tag-urgent':pri==='medium'?'tag-medium':'tag-low';
+        const tagTxt = e.status==='done'?'Done':pri==='urgent'?'Urgent':pri==='medium'?'Medium':'Low';
+        const initials = (e.from||'?').split(/[\s<@]/)[0].slice(0,2).toUpperCase();
+
+        const card = document.createElement('div');
+        card.className = `email-card ${e.status==='done'?'done':pri}`;
+        card.style.marginBottom = '10px';
+        card.innerHTML = `
+          <div class="email-top">
+            <div class="avatar ${avCls}">${initials}</div>
+            <div class="email-meta">
+              <div class="email-from">${esc(e.from)}</div>
+              <div class="email-time">${formatTime(e.receivedAt)}</div>
+            </div>
+            <div class="tag ${tagCls}">${tagTxt}</div>
+          </div>
+          <div class="email-subject">${esc(e.subject)}</div>
+          <div class="email-preview">${esc(e.summary || e.body || '')}</div>
+          ${e.status!=='done' ? `<div class="action-row">
+            <button class="action-btn ab-send" onclick="event.stopPropagation();quickSend('${e.id}')">⚡ Send</button>
+            <button class="action-btn ab-edit" onclick="event.stopPropagation();openDetailById('${e.id}')">✏️ Edit</button>
+            <button class="action-btn ab-ignore" onclick="event.stopPropagation();ignoreById('${e.id}')">Ignore</button>
+          </div>` : ''}
+        `;
+        card.onclick = () => openDetailById(e.id);
+        list.appendChild(card);
+      });
+    });
+
+    // Spacer between months
+    const spacer = document.createElement('div');
+    spacer.style.height = '8px';
+    list.appendChild(spacer);
+  });
+}
+
+function openDetailById(id) {
+  const email = emails.find(e => e.id === id);
+  if (email) openDetail(email);
+}
+
+function monthFromDate(iso) {
+  if (!iso) return 'Unknown';
+  try { return new Date(iso).toLocaleString('en-US',{month:'long'}); } catch { return 'Unknown'; }
+}
+
+function setFilter(el, filter) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = filter;
+  renderEmailList();
+}
+
+// ══════════════════════════════════════
+// EMAIL DETAIL
+// ══════════════════════════════════════
+function openDetail(email) {
+  currentEmail = email;
+  document.getElementById('detail-from').textContent = `${email.from} · ${formatTime(email.receivedAt)}`;
+  document.getElementById('detail-subject').textContent = email.subject;
+  document.getElementById('detail-summary').textContent = email.summary || 'No summary available.';
+  document.getElementById('draft-textarea').value = email.draftReply || '';
+
+  const tagEl = document.getElementById('detail-tag');
+  if (email.status === 'done') { tagEl.className='tag tag-done'; tagEl.textContent='Done'; }
+  else if (email.priority==='urgent') { tagEl.className='tag tag-urgent'; tagEl.textContent='Urgent'; }
+  else if (email.priority==='medium') { tagEl.className='tag tag-medium'; tagEl.textContent='Medium'; }
+  else { tagEl.className='tag tag-low'; tagEl.textContent='Low'; }
+
+  const banner = document.getElementById('deadline-banner');
+  if (email.hasDeadline && email.deadlineText) {
+    banner.classList.remove('hidden');
+    document.getElementById('deadline-text').textContent = '🗓 ' + email.deadlineText;
+  } else { banner.classList.add('hidden'); }
+
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-detail').classList.add('active');
+  document.getElementById('nav-emails').classList.add('active');
+}
+
+function focusDraft() {
+  document.getElementById('draft-textarea').focus();
+}
+
+async function sendEmail() {
+  if (!currentEmail) return;
+  const draft = document.getElementById('draft-textarea').value.trim();
+  if (!draft) { showToast('⚠️ Draft is empty'); return; }
+
+  showLoading('Sending reply…', `To: ${currentEmail.from}`, 50);
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-beta': 'mcp-client-2025-04-04' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        system: 'Use the Microsoft 365 MCP to send an email reply. Confirm with a short text message when done.',
+        messages: [{ role:'user', content:`Reply to email ID "${currentEmail.id}" (from: ${currentEmail.from}, subject: ${currentEmail.subject}) with this message:\n\n${draft}` }],
+        mcp_servers: [{ type:'url', url:'https://microsoft365.mcp.claude.com/mcp', name:'microsoft365' }]
+      })
+    });
+
+    updateLoadingText('Sent!', 'Reply delivered', 100);
+    markDone(currentEmail.id);
+    setTimeout(() => { hideLoading(); goTo('emails'); showToast('✓ Reply sent!'); }, 800);
+  } catch(err) {
+    hideLoading();
+    showToast('⚠️ Send failed: ' + err.message);
+  }
+}
+
+function ignoreEmail() {
+  if (!currentEmail) return;
+  markDone(currentEmail.id);
+  goTo('emails');
+  showToast('Email ignored');
+}
+
+function ignoreById(id) {
+  markDone(id);
+  renderEmailList();
+  refreshDashboard();
+  showToast('Email ignored');
+}
+
+async function quickSend(id) {
+  const email = emails.find(e => e.id === id);
+  if (!email || !email.draftReply) { showToast('⚠️ No draft available'); return; }
+
+  showLoading('Sending reply…', `To: ${email.from}`, 50);
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-beta': 'mcp-client-2025-04-04' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        system: 'Use Microsoft 365 MCP to send an email reply. Confirm when done.',
+        messages: [{ role:'user', content:`Reply to email ID "${email.id}" (from: ${email.from}, subject: ${email.subject}) with:\n\n${email.draftReply}` }],
+        mcp_servers: [{ type:'url', url:'https://microsoft365.mcp.claude.com/mcp', name:'microsoft365' }]
+      })
+    });
+    updateLoadingText('Sent!', '', 100);
+    markDone(id);
+    setTimeout(() => { hideLoading(); renderEmailList(); refreshDashboard(); showToast('✓ Reply sent!'); }, 600);
+  } catch(err) {
+    hideLoading();
+    showToast('⚠️ ' + err.message);
+  }
+}
+
+function markDone(id) {
+  const idx = emails.findIndex(e => e.id === id);
+  if (idx > -1) { emails[idx].status = 'done'; localStorage.setItem('mt_emails', JSON.stringify(emails)); }
+}
+
+// ══════════════════════════════════════
+// TASKS
+// ══════════════════════════════════════
+function renderTasks() {
+  const list = document.getElementById('reminder-list');
+  list.innerHTML = '';
+  const empty = document.getElementById('tasks-empty');
+  if (!tasks.length) { empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  tasks.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'reminder-row';
+    row.innerHTML = `
+      <div class="rem-check ${t.done?'checked':''}" onclick="toggleTask(${i})">${t.done?'✓':''}</div>
+      <div class="rem-text ${t.done?'done':''}">${esc(t.text)}</div>
+      <div class="rem-time" onclick="removeTask(${i})" style="cursor:pointer;color:var(--muted)">✕</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function addTask() {
+  const input = document.getElementById('new-task-input');
+  const text = input.value.trim();
+  if (!text) return;
+  tasks.unshift({ text, done:false, created: Date.now() });
+  localStorage.setItem('mt_tasks', JSON.stringify(tasks));
+  input.value = '';
+  renderTasks();
+}
+
+function toggleTask(i) {
+  tasks[i].done = !tasks[i].done;
+  localStorage.setItem('mt_tasks', JSON.stringify(tasks));
+  renderTasks();
+}
+
+function removeTask(i) {
+  tasks.splice(i,1);
+  localStorage.setItem('mt_tasks', JSON.stringify(tasks));
+  renderTasks();
+}
+
+// ══════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════
+function changeKey() {
+  const key = prompt('Enter new Anthropic API key:');
+  if (key && key.startsWith('sk-ant')) {
+    apiKey = key;
+    localStorage.setItem('mt_apikey', key);
+    updateKeyDisplay();
+    showToast('✓ API key updated');
+  }
+}
+
+function updateKeyDisplay() {
+  const el = document.getElementById('key-display');
+  if (el && apiKey) el.textContent = apiKey.slice(0,12) + '…';
+}
+
+function clearData() {
+  if (!confirm('Clear all scanned emails and tasks?')) return;
+  emails = []; tasks = [];
+  localStorage.removeItem('mt_emails');
+  localStorage.removeItem('mt_tasks');
+  refreshDashboard();
+  renderTasks();
+  showToast('✓ Data cleared');
+}
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function showLoading(title, sub, pct) {
+  document.getElementById('loading-title').textContent = title;
+  document.getElementById('loading-sub').textContent = sub;
+  document.getElementById('loading-bar').style.width = pct + '%';
+  document.getElementById('loading-overlay').classList.add('active');
+}
+function updateLoadingText(title, sub, pct) {
+  document.getElementById('loading-title').textContent = title;
+  document.getElementById('loading-sub').textContent = sub;
+  document.getElementById('loading-bar').style.width = pct + '%';
+}
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.remove('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatTime(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 86400000 && d.getDate()===now.getDate()) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    if (diff < 172800000) return 'Yesterday';
+    return d.toLocaleDateString([],{month:'short',day:'numeric'});
+  } catch { return iso; }
+}
+</script>
+
+</body>
+</html>
